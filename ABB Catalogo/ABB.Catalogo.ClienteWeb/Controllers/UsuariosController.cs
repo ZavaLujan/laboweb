@@ -110,19 +110,42 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
             return View(users);
         }
 
-        // POST: Usuarios/Edit/5
+        // POST: Usuarios/Edit/12
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, Usuario usuario)
         {
-            try
-            {
-                // TODO: Add update logic here
+            string controladora = "Usuarios";
+            string jsonMediaType = "application/json";
 
-                return RedirectToAction("Index");
-            }
-            catch
+            using (WebClient client = new WebClient())
             {
-                return View();
+                try
+                {
+                    // Asegurarse que los campos requeridos no son null
+                    if (string.IsNullOrEmpty(usuario.ClaveTxt))
+                    {
+                        usuario.ClaveTxt = ""; // O asignar un valor por defecto
+                    }
+
+                    client.Headers.Clear();
+                    client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    client.Encoding = UTF8Encoding.UTF8;
+
+                    string rutacompleta = RutaApi + controladora + "/" + id;
+                    string jsonUsuario = JsonConvert.SerializeObject(usuario);
+
+                    // Para debug: ver qué estamos enviando
+                    System.Diagnostics.Debug.WriteLine("JSON enviado: " + jsonUsuario);
+
+                    client.UploadString(new Uri(rutacompleta), "PUT", jsonUsuario);
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    // Para debug: ver el error completo
+                    System.Diagnostics.Debug.WriteLine("Error: " + ex.ToString());
+                    return View(usuario);
+                }
             }
         }
 

@@ -65,7 +65,7 @@ namespace WebServicesAbb.Controllers
         }
 
         // PUT: api/Usuarios/5
-        public void Put(int id, [FromBody] Usuario value)
+        public void Put([FromUri] int id, [FromBody] Usuario value)
         {
             Usuario usuario = new Usuario();
             usuario = new UsuariosLN().ModificarUsuario(id, value);

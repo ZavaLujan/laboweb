@@ -156,8 +156,7 @@ namespace ABB.Catalogo.AccesoDatos.Core
                 {
                     comando.CommandType = System.Data.CommandType.StoredProcedure;
                     comando.Parameters.AddWithValue("@IdUsuario", IdUsuario);
-                    comando.Parameters.AddWithValue("@CodUsuario",
-                    usuario.CodUsuario);
+                    comando.Parameters.AddWithValue("@CodUsuario", usuario.CodUsuario);
                     comando.Parameters.AddWithValue("@Clave", usuario.Clave);
                     comando.Parameters.AddWithValue("@Nombres", usuario.Nombres);
                     comando.Parameters.AddWithValue("@IdRol", usuario.IdRol);
@@ -178,15 +177,13 @@ namespace ABB.Catalogo.AccesoDatos.Core
             Usuario entidad = null;
             try
             {
-
                 using (SqlConnection conexion = new
                 SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
                 {
                     using (SqlCommand comando = new SqlCommand("paUsuario_BuscaUserId", conexion))
                     {
                         comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@ParamUsuario",
-                        pUsuarioId);
+                        comando.Parameters.AddWithValue("@ParamUsuario", pUsuarioId);
                         conexion.Open();
                         SqlDataReader reader = comando.ExecuteReader();
                         while (reader.Read())
