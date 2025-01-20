@@ -1,0 +1,78 @@
+# Archivos y directorios generados por Visual Studio y Visual Studio Code
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de compilación
+bin/
+obj/
+out/
+
+# Archivos de paquetes NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Archivos de configuración y dependencias locales
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Configuración de entorno
+appsettings.*.json
+appsettings.Development.json
+
+# Archivos de publicación
+wwwroot/dist/
+wwwroot/**/*.map
+wwwroot/**/*.gz
+wwwroot/**/*.br
+
+# Archivos de logs
+*.log
+logs/
+LogFiles/
+
+# Archivos de depuración
+*.pdb
+*.mdb
+*.ilk
+*.ipdb
+*.pgc
+*.pgd
+
+# Archivos de información del sistema
+*.DS_Store
+Thumbs.db
+
+# Archivos temporales del sistema operativo
+*.swp
+*.bak
+*.tmp
+*.temp
+
+# Archivos específicos de Rider/JetBrains
+.idea/
+*.idea/
+.idea_modules/
+*.ipr
+*.iws
+
+# Certificados locales
+*.pfx
+*.key
+
+# Configuración específica de contenedores (Docker)
+docker-compose.override.yml
+.env
+
+# Archivos de Azure
+local.settings.json
+
+# Otros archivos innecesarios
+_ReSharper.*
+*_ReSharper.Caches/
+*.resharper
