@@ -1,5 +1,6 @@
 ﻿using ABB.Catalogo.AccesoDatos.Core;
 using ABB.Catalogo.Entidades.Core;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +11,17 @@ namespace ABB.Catalogo.LogicaNegocio.Core
 {
     public class RolLN
     {
-        public List<Rol> ListaRol()
+        private static readonly ILog Log = LogManager.GetLogger(typeof(RolLN));
+
+        public List<Rol> ListarRoles()
         {
             try
             {
-                RolDA roles = new RolDA();
-                return roles.ListaRol();
+                return new RolDA().ListarRoles();
             }
             catch (Exception ex)
             {
+                Log.Error("Error al listar roles", ex);
                 throw;
             }
         }

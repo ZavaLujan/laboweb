@@ -53,7 +53,7 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             Usuario usuario = new Usuario();// se crea una instancia de la clase usuario
             List<Rol> listarol = new List<Rol>();
-            listarol = new RolLN().ListaRol();
+            listarol = new RolLN().ListarRoles();
             listarol.Add(new Rol() { IdRol = 0, DesRol = "[Seleccione Rol...]" });
             ViewBag.listaRoles = listarol;
             return View(usuario);

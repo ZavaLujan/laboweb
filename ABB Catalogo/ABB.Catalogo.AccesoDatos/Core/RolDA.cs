@@ -12,33 +12,32 @@ namespace ABB.Catalogo.AccesoDatos.Core
 {
     public class RolDA
     {
-        public List<Rol> ListaRol()
+        public List<Rol> ListarRoles()
         {
-            List<Rol> listaEntidad = new List<Rol>();
-            try
+            List<Rol> roles = new List<Rol>();
+
+            using (SqlConnection conexion = new SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
             {
-                using (SqlConnection conexion = new SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
+                using (SqlCommand comando = new SqlCommand("ListarRol", conexion))
                 {
-                    using (SqlCommand comando = new SqlCommand("ListarRol", conexion))
+                    comando.CommandType = CommandType.StoredProcedure;
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
                     {
-                        comando.CommandType = CommandType.StoredProcedure;
-                        conexion.Open();
-                        SqlDataReader reader = comando.ExecuteReader();
                         while (reader.Read())
                         {
-                            Rol entidad = new Rol();
-                            entidad.IdRol = Convert.ToInt32(reader["IdRol"]);
-                            entidad.DesRol = Convert.ToString(reader["DesRol"]);
-                            listaEntidad.Add(entidad);
+                            roles.Add(new Rol
+                            {
+                                IdRol = Convert.ToInt32(reader["IdRol"]),
+                                DesRol = Convert.ToString(reader["DesRol"])
+                            });
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                // Aquí podrías agregar logging si lo necesitas
-            }
-            return listaEntidad;
+
+            return roles;
         }
     }
 }
