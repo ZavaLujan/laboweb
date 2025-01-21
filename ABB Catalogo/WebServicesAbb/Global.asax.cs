@@ -14,6 +14,7 @@ namespace WebServicesAbb
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
+            log4net.Config.XmlConfigurator.Configure();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
