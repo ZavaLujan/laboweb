@@ -4,60 +4,30 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Listado de Usuarios</h2>
 
 <p>
-    @Html.ActionLink("Nuevo Usuario", "Create")
+    @Html.ActionLink("Crear Nuevo Usuario", "Create", null, new { @class = "btn btn-primary" })
 </p>
-<table class="table">
+<table class="table table-striped">
     <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.IdUsuario)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CodUsuario)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ClaveTxt)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Nombres)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IdRol)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DesRol)
-        </th>
-        <th></th>
+        <th>@Html.DisplayNameFor(model => model.CodUsuario)</th>
+        <th>@Html.DisplayNameFor(model => model.Nombres)</th>
+        <th>@Html.DisplayNameFor(model => model.DesRol)</th>
+        <th>Acciones</th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.IdUsuario)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CodUsuario)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ClaveTxt)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Nombres)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IdRol)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DesRol)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.IdUsuario })
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-        </td>
-    </tr>
-}
-
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.CodUsuario)</td>
+            <td>@Html.DisplayFor(modelItem => item.Nombres)</td>
+            <td>@Html.DisplayFor(modelItem => item.DesRol)</td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new { id = item.IdUsuario }, new { @class = "btn btn-warning btn-sm" }) |
+                @Html.ActionLink("Detalles", "Details", new { id = item.IdUsuario }, new { @class = "btn btn-info btn-sm" }) |
+                @Html.ActionLink("Eliminar", "Delete", new { id = item.IdUsuario }, new { @class = "btn btn-danger btn-sm" })
+            </td>
+        </tr>
+    }
 </table>

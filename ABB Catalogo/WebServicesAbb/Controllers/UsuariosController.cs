@@ -11,69 +11,79 @@ namespace WebServicesAbb.Controllers
 {
     public class UsuariosController : ApiController
     {
+        private readonly UsuariosLN _usuariosLN;
+
+        public UsuariosController()
+        {
+            _usuariosLN = new UsuariosLN();
+        }
+
         // GET: api/Usuarios
         public IEnumerable<Usuario> Get()
         {
-            List<Usuario> usuarios = new List<Usuario>();
-            usuarios = new UsuariosLN().ListarUsuarios();
-            return usuarios;
+            return _usuariosLN.ListarUsuarios();
         }
 
-        // GET: api/Usuarios/5
-        //public int Get([FromUri] string pUsuario, [FromUri] string pPassword)
-        //{
-        //    try
-        //    {
-        //        UsuariosLN usuario = new UsuariosLN();
-        //        return usuario.GetUsuarioId(pUsuario, pPassword);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-
-        //        //Logger.paginaNombre = this.GetType().Name;
-
-        //        //Logger.Escribir("Error en Logica de Negocio: " + ex.Message + ". " + ex.StackTrace + ". " + innerException);
-
-        //        return -1;
-        //    }
-
-        //}
-
-        public Usuario GetUserId([FromUri] int IdUsuario)
+        // GET: api/Usuarios/GetById/5
+        [HttpGet]
+        [Route("api/Usuarios/GetById/{id}")]
+        public Usuario GetById(int id)
         {
             try
             {
-                UsuariosLN usuario = new UsuariosLN();
-                return usuario.BuscaUsuarioId(IdUsuario);
+                return _usuariosLN.BuscaUsuarioId(id);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-                //Logger.paginaNombre = this.GetType().Name;
-                //Logger.Escribir("Error en Logica de Negocio: " + ex.Message + ". " + ex.StackTrace + ". " + innerException);
-                throw;
+                throw new HttpResponseException(HttpStatusCode.NotFound);
             }
         }
 
+        // GET: api/Usuarios/ValidateUser
+        [HttpGet]
+        [Route("api/Usuarios/ValidateUser")]
+        public int ValidateUser([FromUri] string usuario, [FromUri] string password)
+        {
+            return _usuariosLN.GetUsuarioId(usuario, password);
+        }
 
         // POST: api/Usuarios
-        public void Post([FromBody]Usuario value)
+        public Usuario Post([FromBody] Usuario usuario)
         {
-            Usuario usuario = new UsuariosLN().InsertarUsuario(value);
+            try
+            {
+                return _usuariosLN.InsertarUsuario(usuario);
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
         }
 
         // PUT: api/Usuarios/5
-        public void Put([FromUri] int id, [FromBody] Usuario value)
+        public Usuario Put(int id, [FromBody] Usuario usuario)
         {
-            Usuario usuario = new Usuario();
-            usuario = new UsuariosLN().ModificarUsuario(id, value);
+            try
+            {
+                return _usuariosLN.ModificarUsuario(id, usuario);
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
         }
 
         // DELETE: api/Usuarios/5
         public void Delete(int id)
         {
+            try
+            {
+                _usuariosLN.EliminarUsuario(id);
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
         }
     }
 }

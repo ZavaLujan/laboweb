@@ -13,63 +13,23 @@ namespace ABB.Catalogo.LogicaNegocio.Core
 {
     public class UsuariosLN
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(UsuariosLN)); // Declaración del logger
+        private static readonly ILog Log = LogManager.GetLogger(typeof(UsuariosLN));
+        private readonly UsuariosDA _usuariosDA;
+
+        public UsuariosLN()
+        {
+            _usuariosDA = new UsuariosDA();
+        }
 
         public List<Usuario> ListarUsuarios()
         {
-            List<Usuario> lista = new List<Usuario>();
             try
             {
-                UsuariosDA usuarios = new UsuariosDA();
-                return usuarios.ListarUsuarios();
+                return _usuariosDA.ListarUsuarios();
             }
             catch (Exception ex)
             {
-                string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-                //Logger.paginaNombre = this.GetType().Name;
-                //Logger.Escribir(&quot;Error en Logica de Negocio: &quot; + ex.Message + &quot;. &quot; + ex.StackTrace + &quot;. &quot; + innerException);
-                return lista;
-            }
-        }
-
-        public int GetUsuarioId(string pUsuario, string pPassword)
-        {
-            try
-            {
-                UsuariosDA usuario = new UsuariosDA();
-                return usuario.GetUsuarioId(pUsuario, pPassword);
-            }
-            catch (Exception ex)
-            {
-                string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-                //Logger.paginaNombre = this.GetType().Name;
-                //Logger.Escribir("Error en Logica de Negocio: " + ex.Message + ". " + ex.StackTrace + ". " + innerException);
-                return -1;
-            }
-        }
-
-        public Usuario InsertarUsuario(Usuario usuario)
-        {
-            try
-            {
-                return new UsuariosDA().InsertarUsuario(usuario);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex);
-                throw;
-            }
-        }
-
-        public Usuario ModificarUsuario(int id, Usuario usuario)
-        {
-            try
-            {
-                return new UsuariosDA().ModificarUsuario(id, usuario);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex);
+                Log.Error("Error al listar usuarios", ex);
                 throw;
             }
         }
@@ -78,16 +38,85 @@ namespace ABB.Catalogo.LogicaNegocio.Core
         {
             try
             {
-                UsuariosDA usuario = new UsuariosDA();
-                return usuario.BuscaUsuarioId(pUsuarioId);
+                var usuario = _usuariosDA.BuscaUsuarioId(pUsuarioId);
+                if (usuario == null)
+                    throw new Exception($"Usuario con ID {pUsuarioId} no encontrado");
+                return usuario;
             }
             catch (Exception ex)
             {
-                string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-                //Logger.paginaNombre = this.GetType().Name;
-                //Logger.Escribir("Error en Logica de Negocio: " + ex.Message + ". " + ex.StackTrace + ". " + innerException);
+                Log.Error($"Error al buscar usuario con ID {pUsuarioId}", ex);
                 throw;
             }
+        }
+
+        public int GetUsuarioId(string pUsuario, string pPassword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(pUsuario) || string.IsNullOrEmpty(pPassword))
+                    return -1;
+
+                return _usuariosDA.GetUsuarioId(pUsuario, pPassword);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error al validar usuario {pUsuario}", ex);
+                return -1;
+            }
+        }
+
+        public Usuario InsertarUsuario(Usuario usuario)
+        {
+            try
+            {
+                if (ValidarUsuario(usuario))
+                    return _usuariosDA.InsertarUsuario(usuario);
+                throw new Exception("Datos de usuario inválidos");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error al insertar usuario", ex);
+                throw;
+            }
+        }
+
+        public Usuario ModificarUsuario(int id, Usuario usuario)
+        {
+            try
+            {
+                if (id != usuario.IdUsuario)
+                    throw new Exception("ID de usuario no coincide");
+
+                if (ValidarUsuario(usuario))
+                    return _usuariosDA.ModificarUsuario(id, usuario);
+                throw new Exception("Datos de usuario inválidos");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error al modificar usuario con ID {id}", ex);
+                throw;
+            }
+        }
+
+        public void EliminarUsuario(int id)
+        {
+            try
+            {
+                _usuariosDA.EliminarUsuario(id);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error al eliminar usuario con ID {id}", ex);
+                throw;
+            }
+        }
+
+        private bool ValidarUsuario(Usuario usuario)
+        {
+            return !string.IsNullOrEmpty(usuario.CodUsuario) &&
+                   !string.IsNullOrEmpty(usuario.Nombres) &&
+                   usuario.IdRol > 0;
         }
     }
 }

@@ -13,195 +13,162 @@ namespace ABB.Catalogo.AccesoDatos.Core
 {
     public class UsuariosDA
     {
-        public Usuario LlenarEntidad(IDataReader reader)
+        private readonly string _connectionString;
+
+        public UsuariosDA()
         {
-            Usuario usuario = new Usuario();
-            reader.GetSchemaTable().DefaultView.RowFilter = "ColumnName = 'IdUsuario'";
-            if (reader.GetSchemaTable().DefaultView.Count.Equals(1))
+            _connectionString = ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString;
+        }
+
+        public List<Usuario> ListarUsuarios()
+        {
+            List<Usuario> usuarios = new List<Usuario>();
+
+            using (SqlConnection conexion = new SqlConnection(_connectionString))
             {
-                if (!Convert.IsDBNull(reader["IdUsuario"]))
-                    usuario.IdUsuario = Convert.ToInt32(reader["IdUsuario"]);
+                using (SqlCommand comando = new SqlCommand("ListarUsuarios", conexion))
+                {
+                    comando.CommandType = CommandType.StoredProcedure;
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            usuarios.Add(LlenarEntidad(reader));
+                        }
+                    }
+                }
             }
 
-            reader.GetSchemaTable().DefaultView.RowFilter = "ColumnName = 'CodUsuario'";
+            return usuarios;
+        }
 
-            if (reader.GetSchemaTable().DefaultView.Count.Equals(1))
+        public Usuario BuscaUsuarioId(int pUsuarioId)
+        {
+            Usuario usuario = null;
+
+            using (SqlConnection conexion = new SqlConnection(_connectionString))
             {
-                if (!Convert.IsDBNull(reader["CodUsuario"]))
-                    usuario.CodUsuario = Convert.ToString(reader["CodUsuario"]);
-            }
+                using (SqlCommand comando = new SqlCommand("paUsuario_BuscaUserId", conexion))
+                {
+                    comando.CommandType = CommandType.StoredProcedure;
+                    comando.Parameters.AddWithValue("@ParamUsuario", pUsuarioId);
+                    conexion.Open();
 
-            reader.GetSchemaTable().DefaultView.RowFilter = "ColumnName = 'Clave'";
-
-            if (reader.GetSchemaTable().DefaultView.Count.Equals(1))
-            {
-                //if (!Convert.IsDBNull(reader["Clave"]))
-                // usuario.Clave = Convert.ToString(reader["Clave"]);
-            }
-
-            reader.GetSchemaTable().DefaultView.RowFilter = "ColumnName = 'Nombres'";
-
-            if (reader.GetSchemaTable().DefaultView.Count.Equals(1))
-            {
-                if (!Convert.IsDBNull(reader["Nombres"]))
-                    usuario.Nombres = Convert.ToString(reader["Nombres"]);
-            }
-
-            reader.GetSchemaTable().DefaultView.RowFilter = "ColumnName = 'IdRol'";
-            
-            if (reader.GetSchemaTable().DefaultView.Count.Equals(1))
-
-            {
-                if (!Convert.IsDBNull(reader["IdRol"]))
-                    usuario.IdRol = Convert.ToInt32(reader["IdRol"]);
-            }
-
-            reader.GetSchemaTable().DefaultView.RowFilter = "ColumnName = 'DesRol'";
-            
-            if (reader.GetSchemaTable().DefaultView.Count.Equals(1))
-            {
-                if (!Convert.IsDBNull(reader["DesRol"]))
-                    usuario.DesRol = Convert.ToString(reader["DesRol"]);
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            usuario = LlenarEntidad(reader);
+                        }
+                    }
+                }
             }
 
             return usuario;
         }
 
-        public List<Usuario> ListarUsuarios()
-        {
-            List<Usuario> ListaEntidad = new List<Usuario>();
-            Usuario entidad = null;
-            using (SqlConnection conexion = new
-            SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
-            {
-                using (SqlCommand comando = new SqlCommand("ListarUsuarios",
-                conexion))
-                {
-                    comando.CommandType = CommandType.StoredProcedure;
-                    conexion.Open();
-                    SqlDataReader reader = comando.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        entidad = LlenarEntidad(reader);
-                        ListaEntidad.Add(entidad);
-                    }
-                }
-                conexion.Close();
-            }
-            return ListaEntidad;
-        }
-
         public int GetUsuarioId(string pUsuario, string pPassword)
         {
-            try
+            byte[] UserPass = EncriptacionHelper.EncriptarByte(pPassword);
+
+            using (SqlConnection conexion = new SqlConnection(_connectionString))
             {
-                // string UserPass = Utilitario.GetMd5Hash2(pPassword);
-                byte[] UserPass = EncriptacionHelper.EncriptarByte(pPassword);
-                int returnedVal = 0;
-                using (SqlConnection conexion = new
-                SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
+                using (SqlCommand comando = new SqlCommand("paUsuario_BuscaCodUserClave", conexion))
                 {
-                    using (SqlCommand comando = new
-                    SqlCommand("paUsuario_BuscaCodUserClave", conexion))
-                    {
-                        comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@ParamUsuario", pUsuario);
-                        comando.Parameters.AddWithValue("@ParamPass", UserPass);
-                        conexion.Open();
-                        returnedVal = Convert.ToInt32(comando.ExecuteScalar());
-                        conexion.Close();
-                    }
+                    comando.CommandType = CommandType.StoredProcedure;
+                    comando.Parameters.AddWithValue("@ParamUsuario", pUsuario);
+                    comando.Parameters.AddWithValue("@ParamPass", UserPass);
+                    conexion.Open();
+
+                    var result = comando.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : -1;
                 }
-                return Convert.ToInt32(returnedVal);
-            }
-            catch (Exception ex)
-            {
-                string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-                //Logger.paginaNombre = this.GetType().Name;
-                //Logger.Escribir("Error en Logica de Negocio: " + ex.Message + ". "+ ex.StackTrace + ". " + innerException);
-                return -1;
             }
         }
 
         public Usuario InsertarUsuario(Usuario usuario)
         {
-            byte[] UserPass = EncriptacionHelper.EncriptarByte(usuario.ClaveTxt);
-            usuario.Clave = UserPass;
-            using (SqlConnection conexion = new
-            SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
+            using (SqlConnection conexion = new SqlConnection(_connectionString))
             {
                 using (SqlCommand comando = new SqlCommand("paUsuario_insertar", conexion))
                 {
-                    comando.CommandType = System.Data.CommandType.StoredProcedure;
-                    comando.Parameters.AddWithValue("@Clave", usuario.Clave);
+                    comando.CommandType = CommandType.StoredProcedure;
                     comando.Parameters.AddWithValue("@CodUsuario", usuario.CodUsuario);
+                    comando.Parameters.AddWithValue("@Clave", EncriptacionHelper.EncriptarByte(usuario.ClaveTxt));
                     comando.Parameters.AddWithValue("@Nombres", usuario.Nombres);
                     comando.Parameters.AddWithValue("@IdRol", usuario.IdRol);
+
                     conexion.Open();
                     usuario.IdUsuario = Convert.ToInt32(comando.ExecuteScalar());
-                    conexion.Close();
                 }
             }
+
             return usuario;
         }
 
-        public Usuario ModificarUsuario(int IdUsuario, Usuario usuario)
+        public Usuario ModificarUsuario(int id, Usuario usuario)
         {
-            Usuario SegSSOMUsuario = null;
-            byte[] UserPass = EncriptacionHelper.EncriptarByte(usuario.ClaveTxt);
-            usuario.Clave = UserPass;
-            using (SqlConnection conexion = new SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
+            using (SqlConnection conexion = new SqlConnection(_connectionString))
             {
                 using (SqlCommand comando = new SqlCommand("paUsuario_Modificar", conexion))
                 {
-                    comando.CommandType = System.Data.CommandType.StoredProcedure;
-                    comando.Parameters.AddWithValue("@IdUsuario", IdUsuario);
+                    comando.CommandType = CommandType.StoredProcedure;
+                    comando.Parameters.AddWithValue("@IdUsuario", id);
                     comando.Parameters.AddWithValue("@CodUsuario", usuario.CodUsuario);
-                    comando.Parameters.AddWithValue("@Clave", usuario.Clave);
+                    comando.Parameters.AddWithValue("@Clave", EncriptacionHelper.EncriptarByte(usuario.ClaveTxt));
                     comando.Parameters.AddWithValue("@Nombres", usuario.Nombres);
                     comando.Parameters.AddWithValue("@IdRol", usuario.IdRol);
+
                     conexion.Open();
-                    SqlDataReader reader = comando.ExecuteReader();
-                    while (reader.Read())
+                    using (SqlDataReader reader = comando.ExecuteReader())
                     {
-                        SegSSOMUsuario = LlenarEntidad(reader);
+                        if (reader.Read())
+                        {
+                            return LlenarEntidad(reader);
+                        }
                     }
-                    conexion.Close();
                 }
             }
-            return SegSSOMUsuario;
+
+            return null;
         }
 
-        public Usuario BuscaUsuarioId(int pUsuarioId)
+        public void EliminarUsuario(int id)
         {
-            Usuario entidad = null;
-            try
+            using (SqlConnection conexion = new SqlConnection(_connectionString))
             {
-                using (SqlConnection conexion = new
-                SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
+                using (SqlCommand comando = new SqlCommand("paUsuario_Eliminar", conexion))
                 {
-                    using (SqlCommand comando = new SqlCommand("paUsuario_BuscaUserId", conexion))
-                    {
-                        comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@ParamUsuario", pUsuarioId);
-                        conexion.Open();
-                        SqlDataReader reader = comando.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            entidad = LlenarEntidad(reader);
-                        }
-                        conexion.Close();
-                    }
+                    comando.CommandType = CommandType.StoredProcedure;
+                    comando.Parameters.AddWithValue("@IdUsuario", id);
+                    conexion.Open();
+                    comando.ExecuteNonQuery();
                 }
-                return entidad;
             }
-            catch (Exception ex)
-            {
-                string innerException = (ex.InnerException == null) ? "" : ex.InnerException.ToString();
-                //Logger.paginaNombre = this.GetType().Name;
-                //Logger.Escribir("Error en Logica de Negocio: " + ex.Message + ". " + ex.StackTrace + ". " + innerException);
-                return entidad;
-            }
+        }
+
+        private Usuario LlenarEntidad(IDataReader reader)
+        {
+            Usuario usuario = new Usuario();
+
+            if (!Convert.IsDBNull(reader["IdUsuario"]))
+                usuario.IdUsuario = Convert.ToInt32(reader["IdUsuario"]);
+
+            if (!Convert.IsDBNull(reader["CodUsuario"]))
+                usuario.CodUsuario = Convert.ToString(reader["CodUsuario"]);
+
+            if (!Convert.IsDBNull(reader["Nombres"]))
+                usuario.Nombres = Convert.ToString(reader["Nombres"]);
+
+            if (!Convert.IsDBNull(reader["IdRol"]))
+                usuario.IdRol = Convert.ToInt32(reader["IdRol"]);
+
+            if (!Convert.IsDBNull(reader["DesRol"]))
+                usuario.DesRol = Convert.ToString(reader["DesRol"]);
+
+            return usuario;
         }
     }
 }

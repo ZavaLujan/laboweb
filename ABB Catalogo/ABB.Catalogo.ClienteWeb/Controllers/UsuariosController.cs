@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Security;
+using ActionNameAttribute = System.Web.Mvc.ActionNameAttribute;
 using HttpPostAttribute = System.Web.Mvc.HttpPostAttribute;
 
 namespace ABB.Catalogo.ClienteWeb.Controllers
@@ -89,84 +90,109 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
 
         // GET: Usuarios/Edit/5
         public ActionResult Edit(int id)
-
         {
             string controladora = "Usuarios";
-            string metodo = "GetUserId";
             Usuario users = new Usuario();
             using (WebClient usuario = new WebClient())
             {
-                usuario.Headers.Clear();//borra datos anteriores
-                                        //establece el tipo de dato de tranferencia
+                usuario.Headers.Clear();
                 usuario.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
-                //typo de decodificador reconocimiento carecteres especiales
                 usuario.Encoding = UTF8Encoding.UTF8;
-                string rutacompleta = RutaApi + controladora + "?IdUsuario=" + id;
+                // Modificamos la ruta para usar el endpoint correcto según la API
+                string rutacompleta = RutaApi + controladora + "/getbyid/" + id;
                 //ejecuta la busqueda en la web api usando metodo GET
                 var data = usuario.DownloadString(new Uri(rutacompleta));
-                // convierte los datos traidos por la api a tipo lista de usuarios
-                users = JsonConvert.DeserializeObject<Usuario> (data);
+                // Deserializamos a un único objeto Usuario
+                users = JsonConvert.DeserializeObject<Usuario>(data);
             }
+
+            // Cargar lista de roles para el dropdown
+            List<Rol> listarol = new List<Rol>();
+            listarol = new RolLN().ListarRoles();
+            ViewBag.listaRoles = listarol;
+
             return View(users);
         }
 
         // POST: Usuarios/Edit/12
-[HttpPost]
-public ActionResult Edit(int id, Usuario usuario)
-{
-    string controladora = "Usuarios";
-    string jsonMediaType = "application/json";
+        [HttpPost]
+        public ActionResult Edit(int id, Usuario usuario)
+        {
+            string controladora = "Usuarios";
+            string jsonMediaType = "application/json";
     
-    using (WebClient client = new WebClient())
-    {
-        try
-        {
-            // Asegurarse que los campos requeridos no son null
-            if (string.IsNullOrEmpty(usuario.ClaveTxt))
+            using (WebClient client = new WebClient())
             {
-                usuario.ClaveTxt = ""; // O asignar un valor por defecto
+                try
+                {
+                    // Asegurarse que los campos requeridos no son null
+                    if (string.IsNullOrEmpty(usuario.ClaveTxt))
+                    {
+                        usuario.ClaveTxt = ""; // O asignar un valor por defecto
+                    }
+
+                    client.Headers.Clear();
+                    client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    client.Encoding = UTF8Encoding.UTF8;
+
+                    string rutacompleta = RutaApi + controladora + "/" + id;
+                    string jsonUsuario = JsonConvert.SerializeObject(usuario);
+            
+                    // Para debug: ver qué estamos enviando
+                    System.Diagnostics.Debug.WriteLine("JSON enviado: " + jsonUsuario);
+            
+                    client.UploadString(new Uri(rutacompleta), "PUT", jsonUsuario);
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    // Para debug: ver el error completo
+                    System.Diagnostics.Debug.WriteLine("Error: " + ex.ToString());
+                    return View(usuario);
+                }
             }
-
-            client.Headers.Clear();
-            client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
-            client.Encoding = UTF8Encoding.UTF8;
-
-            string rutacompleta = RutaApi + controladora + "/" + id;
-            string jsonUsuario = JsonConvert.SerializeObject(usuario);
-            
-            // Para debug: ver qué estamos enviando
-            System.Diagnostics.Debug.WriteLine("JSON enviado: " + jsonUsuario);
-            
-            client.UploadString(new Uri(rutacompleta), "PUT", jsonUsuario);
-            return RedirectToAction("Index");
         }
-        catch (Exception ex)
-        {
-            // Para debug: ver el error completo
-            System.Diagnostics.Debug.WriteLine("Error: " + ex.ToString());
-            return View(usuario);
-        }
-    }
-}
 
         // GET: Usuarios/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            string controladora = "Usuarios";
+            Usuario usuario = new Usuario();
+            using (WebClient client = new WebClient())
+            {
+                client.Headers.Clear();
+                client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                client.Encoding = UTF8Encoding.UTF8;
+                string rutacompleta = RutaApi + controladora + "/getbyid/" + id;
+                var data = client.DownloadString(new Uri(rutacompleta));
+                usuario = JsonConvert.DeserializeObject<Usuario>(data);
+            }
+            return View(usuario);
         }
 
         // POST: Usuarios/Delete/5
-        [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
         {
+            string controladora = "Usuarios";
             try
             {
-                // TODO: Add delete logic here
-
+                using (WebClient client = new WebClient())
+                {
+                    client.Headers.Clear();
+                    client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    client.Encoding = UTF8Encoding.UTF8;
+                    string rutacompleta = RutaApi + controladora + "/" + id;
+                    // Usando el método DELETE de HTTP
+                    client.UploadString(new Uri(rutacompleta), "DELETE", "");
+                }
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception ex)
             {
+                // Para debug: ver el error completo
+                System.Diagnostics.Debug.WriteLine("Error: " + ex.ToString());
                 return View();
             }
         }
