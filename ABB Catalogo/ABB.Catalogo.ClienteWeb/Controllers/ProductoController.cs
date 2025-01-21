@@ -2,8 +2,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
+using System.Web;
 using System.Web.Mvc;
 
 namespace ABB.Catalogo.ClienteWeb.Controllers
@@ -48,15 +50,38 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         // GET: Producto/Create
         public ActionResult Create()
         {
+            // Obtener las categorías de la API
+            List<Categoria> categorias = null;
+            using (WebClient cliente = new WebClient())
+            {
+                cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                string rutacompleta = RutaApi + "categorias";
+                string respuesta = cliente.DownloadString(rutacompleta);
+                categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
+            }
+
+            // Preparar los datos para el combobox
+            ViewBag.IdCategoria = new SelectList(categorias, "IdCategoria", "DescCategoria");
             return View();
         }
 
         // POST: Producto/Create
         [HttpPost]
-        public ActionResult Create(Producto producto)
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Producto producto, HttpPostedFileBase imagenFile)
         {
             try
             {
+                // Procesar la imagen si se subió una
+                if (imagenFile != null && imagenFile.ContentLength > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        imagenFile.InputStream.CopyTo(ms);
+                        producto.Imagen = ms.ToArray();
+                    }
+                }
+
                 string controladora = "productos";
                 using (WebClient cliente = new WebClient())
                 {
@@ -70,7 +95,17 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
             }
             catch
             {
-                return View();
+                // Recargar el combobox en caso de error
+                List<Categoria> categorias = null;
+                using (WebClient cliente = new WebClient())
+                {
+                    cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    string rutacompleta = RutaApi + "categorias";
+                    string respuesta = cliente.DownloadString(rutacompleta);
+                    categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
+                }
+                ViewBag.IdCategoria = new SelectList(categorias, "IdCategoria", "DescCategoria");
+                return View(producto);
             }
         }
 

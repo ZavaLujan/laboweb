@@ -19,6 +19,7 @@ namespace ABB.Catalogo.AccesoDatos.Core
         {
             _connectionString = ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString;
         }
+
         public Producto LlenarEntidad(IDataReader reader)
         {
             Producto producto = new Producto();
