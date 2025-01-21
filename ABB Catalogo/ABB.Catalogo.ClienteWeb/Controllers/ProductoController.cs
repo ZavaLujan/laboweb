@@ -112,26 +112,73 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         // GET: Producto/Edit/5
         public ActionResult Edit(int id)
         {
-            string controladora = $"productos/{id}";
-            Producto producto = null;
-            using (WebClient cliente = new WebClient())
+            try
             {
-                cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
-                cliente.Encoding = UTF8Encoding.UTF8;
-                string rutacompleta = RutaApi + controladora;
-                var data = cliente.DownloadString(new Uri(rutacompleta));
-                producto = JsonConvert.DeserializeObject<Producto>(data);
+                // Obtener el producto de la API
+                Producto producto = null;
+                using (WebClient cliente = new WebClient())
+                {
+                    cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    string rutacompleta = RutaApi + "productos/" + id;
+                    string respuesta = cliente.DownloadString(rutacompleta);
+                    producto = JsonConvert.DeserializeObject<Producto>(respuesta);
+                }
+
+                // Obtener las categorías de la API
+                List<Categoria> categorias = null;
+                using (WebClient cliente = new WebClient())
+                {
+                    cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    string rutacompleta = RutaApi + "categorias";
+                    string respuesta = cliente.DownloadString(rutacompleta);
+                    categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
+                }
+
+                ViewBag.IdCategoria = new SelectList(categorias, "IdCategoria", "DescCategoria", producto.IdCategoria);
+                return View(producto);
             }
-            return View(producto);
+            catch
+            {
+                return RedirectToAction("Index");
+            }
         }
 
         // POST: Producto/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, Producto producto)
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(int id, Producto producto, HttpPostedFileBase imagenFile)
         {
             try
             {
-                string controladora = $"productos/{id}";
+                if (id != producto.IdProducto)
+                {
+                    return HttpNotFound();
+                }
+
+                // Si se subió una nueva imagen, procesarla
+                if (imagenFile != null && imagenFile.ContentLength > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        imagenFile.InputStream.CopyTo(ms);
+                        producto.Imagen = ms.ToArray();
+                    }
+                }
+                else
+                {
+                    // Si no se subió una nueva imagen, obtener la imagen actual
+                    using (WebClient cliente = new WebClient())
+                    {
+                        cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                        string rutacompleta = RutaApi + "productos/" + id;
+                        string respuesta = cliente.DownloadString(rutacompleta);
+                        var productoActual = JsonConvert.DeserializeObject<Producto>(respuesta);
+                        producto.Imagen = productoActual.Imagen;
+                    }
+                }
+
+                // Actualizar el producto
+                string controladora = "productos/" + id;
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
@@ -140,11 +187,22 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
                     string data = JsonConvert.SerializeObject(producto);
                     cliente.UploadString(new Uri(rutacompleta), "PUT", data);
                 }
+
                 return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                // Recargar el combobox en caso de error
+                List<Categoria> categorias = null;
+                using (WebClient cliente = new WebClient())
+                {
+                    cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    string rutacompleta = RutaApi + "categorias";
+                    string respuesta = cliente.DownloadString(rutacompleta);
+                    categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
+                }
+                ViewBag.IdCategoria = new SelectList(categorias, "IdCategoria", "DescCategoria", producto.IdCategoria);
+                return View(producto);
             }
         }
 
