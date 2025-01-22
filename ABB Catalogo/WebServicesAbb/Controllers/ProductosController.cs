@@ -9,6 +9,7 @@ using System.Web.Http;
 
 namespace WebServicesAbb.Controllers
 {
+    [Authorize]
     public class ProductosController : ApiController
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ProductosController));

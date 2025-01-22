@@ -4,6 +4,7 @@ using ABB.Catalogo.LogicaNegocio.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -18,26 +19,28 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
 {
     public class UsuariosController : Controller
     {
-        string RutaApi = "https://localhost:44380/api/"; //define la ruta del web api
-        string jsonMediaType = "application/json"; // define el tipo de dat
+        string RutaApi = "https://localhost:44380/api/";
+        string jsonMediaType = "application/json";
 
         // GET: Usuarios
         public ActionResult Index()
         {
             string controladora = "Usuarios";
-            string metodo = "Get";
             List<Usuario> listausuarios = new List<Usuario>();
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient usuario = new WebClient())
             {
-                usuario.Headers.Clear();//borra datos anteriores
-                                        //establece el tipo de dato de tranferencia
+                usuario.Headers.Clear();
                 usuario.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
-                //typo de decodificador reconocimiento carecteres especiales
+                // Agregar el token al header
+                usuario.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 usuario.Encoding = UTF8Encoding.UTF8;
+
                 string rutacompleta = RutaApi + controladora;
-                //ejecuta la busqueda en la web api usando metodo GET
                 var data = usuario.DownloadString(new Uri(rutacompleta));
-                // convierte los datos traidos por la api a tipo lista de usuarios
                 listausuarios = JsonConvert.DeserializeObject<List<Usuario>>(data);
             }
             return View(listausuarios);
@@ -46,7 +49,10 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         // GET: Usuarios/Create
         public ActionResult Create()
         {
-            Usuario usuario = new Usuario();// se crea una instancia de la clase usuario
+            // Obtener el token (aunque no se use en esta acción, podría necesitarse para cargar datos adicionales)
+            var tokenResponse = Respuesta();
+
+            Usuario usuario = new Usuario();
             List<Rol> listarol = new List<Rol>();
             listarol = new RolLN().ListarRoles();
             listarol.Add(new Rol() { IdRol = 0, DesRol = "[Seleccione Rol...]" });
@@ -55,21 +61,23 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         }
 
         // POST: Usuarios/Create
-        [System.Web.Mvc.HttpPost]
+        [HttpPost]
         public ActionResult Create(Usuario collection)
         {
             string controladora = "Usuarios";
             try
             {
-                // TODO: Add insert logic here
+                // Obtener el token
+                var tokenResponse = Respuesta();
+
                 using (WebClient usuario = new WebClient())
                 {
-                    usuario.Headers.Clear();//borra datos anteriores
-                                            //establece el tipo de dato de tranferencia
+                    usuario.Headers.Clear();
                     usuario.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
-                    //typo de decodificador reconocimiento carecteres especiales
+                    // Agregar el token al header
+                    usuario.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     usuario.Encoding = UTF8Encoding.UTF8;
-                    //convierte el objeto de tipo Usuarios a una trama Json
+
                     var usuarioJson = JsonConvert.SerializeObject(collection);
                     string rutacompleta = RutaApi + controladora;
                     var resultado = usuario.UploadString(new Uri(rutacompleta), usuarioJson);
@@ -87,20 +95,23 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             string controladora = "Usuarios";
             Usuario users = new Usuario();
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient usuario = new WebClient())
             {
                 usuario.Headers.Clear();
                 usuario.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                // Agregar el token al header
+                usuario.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 usuario.Encoding = UTF8Encoding.UTF8;
-                // Modificamos la ruta para usar el endpoint correcto según la API
+
                 string rutacompleta = RutaApi + controladora + "/getbyid/" + id;
-                //ejecuta la busqueda en la web api usando metodo GET
                 var data = usuario.DownloadString(new Uri(rutacompleta));
-                // Deserializamos a un único objeto Usuario
                 users = JsonConvert.DeserializeObject<Usuario>(data);
             }
 
-            // Cargar lista de roles para el dropdown
             List<Rol> listarol = new List<Rol>();
             listarol = new RolLN().ListarRoles();
             ViewBag.listaRoles = listarol;
@@ -113,34 +124,34 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         public ActionResult Edit(int id, Usuario usuario)
         {
             string controladora = "Usuarios";
-            string jsonMediaType = "application/json";
-    
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient client = new WebClient())
             {
                 try
                 {
-                    // Asegurarse que los campos requeridos no son null
                     if (string.IsNullOrEmpty(usuario.ClaveTxt))
                     {
-                        usuario.ClaveTxt = ""; // O asignar un valor por defecto
+                        usuario.ClaveTxt = "";
                     }
 
                     client.Headers.Clear();
                     client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    // Agregar el token al header
+                    client.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     client.Encoding = UTF8Encoding.UTF8;
 
                     string rutacompleta = RutaApi + controladora + "/" + id;
                     string jsonUsuario = JsonConvert.SerializeObject(usuario);
-            
-                    // Para debug: ver qué estamos enviando
+
                     System.Diagnostics.Debug.WriteLine("JSON enviado: " + jsonUsuario);
-            
                     client.UploadString(new Uri(rutacompleta), "PUT", jsonUsuario);
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
-                    // Para debug: ver el error completo
                     System.Diagnostics.Debug.WriteLine("Error: " + ex.ToString());
                     return View(usuario);
                 }
@@ -152,11 +163,18 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             string controladora = "Usuarios";
             Usuario usuario = new Usuario();
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient client = new WebClient())
             {
                 client.Headers.Clear();
                 client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                // Agregar el token al header
+                client.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 client.Encoding = UTF8Encoding.UTF8;
+
                 string rutacompleta = RutaApi + controladora + "/getbyid/" + id;
                 var data = client.DownloadString(new Uri(rutacompleta));
                 usuario = JsonConvert.DeserializeObject<Usuario>(data);
@@ -170,25 +188,56 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             string controladora = "Usuarios";
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             try
             {
                 using (WebClient client = new WebClient())
                 {
                     client.Headers.Clear();
                     client.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    // Agregar el token al header
+                    client.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     client.Encoding = UTF8Encoding.UTF8;
+
                     string rutacompleta = RutaApi + controladora + "/" + id;
-                    // Usando el método DELETE de HTTP
                     client.UploadString(new Uri(rutacompleta), "DELETE", "");
                 }
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                // Para debug: ver el error completo
                 System.Diagnostics.Debug.WriteLine("Error: " + ex.ToString());
                 return View();
             }
+        }
+
+        private TokenResponse Respuesta()
+        {
+            TokenResponse respuesta = new TokenResponse();
+            string controladora = "Auth";
+            var resultado = "";
+            UsuariosApi usuapi = new UsuariosApi();
+
+            usuapi.Codigo = Convert.ToInt32(ConfigurationManager.AppSettings["UsuApiCodigo"]);
+            usuapi.UserName = ConfigurationManager.AppSettings["UsuApiUserName"];
+            usuapi.Clave = ConfigurationManager.AppSettings["UsuApiClave"];
+            usuapi.Nombre = ConfigurationManager.AppSettings["UsuApiNombre"];
+            usuapi.Rol = ConfigurationManager.AppSettings["UsuApiRol"];
+
+            using (WebClient usuarioapi = new WebClient())
+            {
+                usuarioapi.Headers.Clear();
+                usuarioapi.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                usuarioapi.Encoding = UTF8Encoding.UTF8;
+                var usuarioJson = JsonConvert.SerializeObject(usuapi);
+                string rutacompleta = RutaApi + controladora;
+                resultado = usuarioapi.UploadString(new Uri(rutacompleta), usuarioJson);
+                respuesta = JsonConvert.DeserializeObject<TokenResponse>(resultado);
+            }
+            return respuesta;
         }
     }
 }
