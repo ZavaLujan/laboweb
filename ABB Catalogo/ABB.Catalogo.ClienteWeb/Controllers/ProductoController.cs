@@ -7,12 +7,13 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Configuration;
 
 namespace ABB.Catalogo.ClienteWeb.Controllers
 {
     public class ProductoController : Controller
     {
-        string RutaApi = "https://localhost:44380/api/"; // URL base de la API
+        string RutaApi = "https://localhost:44380/api/";
         string jsonMediaType = "application/json";
 
         // GET: Producto
@@ -20,9 +21,14 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             string controladora = "productos";
             List<Producto> listaproducto = new List<Producto>();
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient producto = new WebClient())
             {
                 producto.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                producto.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 producto.Encoding = UTF8Encoding.UTF8;
                 string rutacompleta = RutaApi + controladora;
                 var data = producto.DownloadString(new Uri(rutacompleta));
@@ -36,9 +42,14 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             string controladora = $"productos/{id}";
             Producto producto = null;
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient cliente = new WebClient())
             {
                 cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 cliente.Encoding = UTF8Encoding.UTF8;
                 string rutacompleta = RutaApi + controladora;
                 var data = cliente.DownloadString(new Uri(rutacompleta));
@@ -50,17 +61,20 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         // GET: Producto/Create
         public ActionResult Create()
         {
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             // Obtener las categorías de la API
             List<Categoria> categorias = null;
             using (WebClient cliente = new WebClient())
             {
                 cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 string rutacompleta = RutaApi + "categorias";
                 string respuesta = cliente.DownloadString(rutacompleta);
                 categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
             }
 
-            // Preparar los datos para el combobox
             ViewBag.IdCategoria = new SelectList(categorias, "IdCategoria", "DescCategoria");
             return View();
         }
@@ -72,6 +86,9 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             try
             {
+                // Obtener el token
+                var tokenResponse = Respuesta();
+
                 // Procesar la imagen si se subió una
                 if (imagenFile != null && imagenFile.ContentLength > 0)
                 {
@@ -86,6 +103,7 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     cliente.Encoding = UTF8Encoding.UTF8;
                     string rutacompleta = RutaApi + controladora;
                     string data = JsonConvert.SerializeObject(producto);
@@ -96,10 +114,12 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
             catch
             {
                 // Recargar el combobox en caso de error
+                var tokenResponse = Respuesta();
                 List<Categoria> categorias = null;
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     string rutacompleta = RutaApi + "categorias";
                     string respuesta = cliente.DownloadString(rutacompleta);
                     categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
@@ -114,11 +134,15 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             try
             {
+                // Obtener el token
+                var tokenResponse = Respuesta();
+
                 // Obtener el producto de la API
                 Producto producto = null;
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     string rutacompleta = RutaApi + "productos/" + id;
                     string respuesta = cliente.DownloadString(rutacompleta);
                     producto = JsonConvert.DeserializeObject<Producto>(respuesta);
@@ -129,6 +153,7 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     string rutacompleta = RutaApi + "categorias";
                     string respuesta = cliente.DownloadString(rutacompleta);
                     categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
@@ -155,6 +180,9 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
                     return HttpNotFound();
                 }
 
+                // Obtener el token
+                var tokenResponse = Respuesta();
+
                 // Si se subió una nueva imagen, procesarla
                 if (imagenFile != null && imagenFile.ContentLength > 0)
                 {
@@ -170,6 +198,7 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
                     using (WebClient cliente = new WebClient())
                     {
                         cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                        cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                         string rutacompleta = RutaApi + "productos/" + id;
                         string respuesta = cliente.DownloadString(rutacompleta);
                         var productoActual = JsonConvert.DeserializeObject<Producto>(respuesta);
@@ -182,6 +211,7 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     cliente.Encoding = UTF8Encoding.UTF8;
                     string rutacompleta = RutaApi + controladora;
                     string data = JsonConvert.SerializeObject(producto);
@@ -193,10 +223,12 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
             catch
             {
                 // Recargar el combobox en caso de error
+                var tokenResponse = Respuesta();
                 List<Categoria> categorias = null;
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     string rutacompleta = RutaApi + "categorias";
                     string respuesta = cliente.DownloadString(rutacompleta);
                     categorias = JsonConvert.DeserializeObject<List<Categoria>>(respuesta);
@@ -211,9 +243,14 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             string controladora = $"productos/{id}";
             Producto producto = null;
+
+            // Obtener el token
+            var tokenResponse = Respuesta();
+
             using (WebClient cliente = new WebClient())
             {
                 cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                 cliente.Encoding = UTF8Encoding.UTF8;
                 string rutacompleta = RutaApi + controladora;
                 var data = cliente.DownloadString(new Uri(rutacompleta));
@@ -228,10 +265,14 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
         {
             try
             {
+                // Obtener el token
+                var tokenResponse = Respuesta();
+
                 string controladora = $"productos/{id}";
                 using (WebClient cliente = new WebClient())
                 {
                     cliente.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                    cliente.Headers[HttpRequestHeader.Authorization] = "Bearer " + tokenResponse.Token;
                     cliente.Encoding = UTF8Encoding.UTF8;
                     string rutacompleta = RutaApi + controladora;
                     cliente.UploadString(new Uri(rutacompleta), "DELETE", "");
@@ -242,6 +283,32 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
             {
                 return View();
             }
+        }
+
+        private TokenResponse Respuesta()
+        {
+            TokenResponse respuesta = new TokenResponse();
+            string controladora = "Auth";
+            var resultado = "";
+            UsuariosApi usuapi = new UsuariosApi();
+
+            usuapi.Codigo = Convert.ToInt32(ConfigurationManager.AppSettings["UsuApiCodigo"]);
+            usuapi.UserName = ConfigurationManager.AppSettings["UsuApiUserName"];
+            usuapi.Clave = ConfigurationManager.AppSettings["UsuApiClave"];
+            usuapi.Nombre = ConfigurationManager.AppSettings["UsuApiNombre"];
+            usuapi.Rol = ConfigurationManager.AppSettings["UsuApiRol"];
+
+            using (WebClient usuarioapi = new WebClient())
+            {
+                usuarioapi.Headers.Clear();
+                usuarioapi.Headers[HttpRequestHeader.ContentType] = jsonMediaType;
+                usuarioapi.Encoding = UTF8Encoding.UTF8;
+                var usuarioJson = JsonConvert.SerializeObject(usuapi);
+                string rutacompleta = RutaApi + controladora;
+                resultado = usuarioapi.UploadString(new Uri(rutacompleta), usuarioJson);
+                respuesta = JsonConvert.DeserializeObject<TokenResponse>(resultado);
+            }
+            return respuesta;
         }
     }
 }
