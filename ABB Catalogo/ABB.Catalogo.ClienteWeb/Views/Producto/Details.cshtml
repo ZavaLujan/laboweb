@@ -1,98 +1,75 @@
 ﻿@model ABB.Catalogo.Entidades.Core.Producto
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Detalles del Producto";
 }
 
-<h2>Details</h2>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Detalles del Producto</h2>
 
-<div>
-    <h4>Producto</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.IdProducto)
-        </dt>
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-primary">Información del Producto</h4>
+            <hr />
+        </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.IdProducto)
-        </dd>
+        <!-- Primera Columna -->
+        <div class="col-md-6 mb-3">
+            <strong>Nombre del Producto:</strong>
+            <p>@Html.DisplayFor(model => model.NomProducto)</p>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.IdCategoria)
-        </dt>
+        <div class="col-md-6 mb-3">
+            <strong>Marca:</strong>
+            <p>@Html.DisplayFor(model => model.MarcaProducto)</p>
+        </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.IdCategoria)
-        </dd>
+        <div class="col-md-6 mb-3">
+            <strong>Modelo:</strong>
+            <p>@Html.DisplayFor(model => model.ModeloProducto)</p>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.NomProducto)
-        </dt>
+        <div class="col-md-6 mb-3">
+            <strong>Línea:</strong>
+            <p>@Html.DisplayFor(model => model.LineaProducto)</p>
+        </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.NomProducto)
-        </dd>
+        <div class="col-md-6 mb-3">
+            <strong>Garantía:</strong>
+            <p>@Html.DisplayFor(model => model.GarantiaProducto)</p>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.MarcaProducto)
-        </dt>
+        <div class="col-md-6 mb-3">
+            <strong>Precio:</strong>
+            <p>@Html.DisplayFor(model => model.Precio)</p>
+        </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.MarcaProducto)
-        </dd>
+        <!-- Descripción Técnica -->
+        <div class="col-md-12 mb-3">
+            <strong>Descripción Técnica:</strong>
+            <p>@Html.DisplayFor(model => model.DescripcionTecnica)</p>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.ModeloProducto)
-        </dt>
+        <!-- Imagen (opcional) -->
+        <div class="col-md-12 mb-3 text-center">
+            @if (Model.Imagen != null)
+            {
+                <strong>Imagen del Producto:</strong>
+                <br />
+                <img src="@String.Format("data:image/jpeg;base64,{0}", Convert.ToBase64String(Model.Imagen))"
+                     alt="Imagen del Producto" class="img-fluid mt-2" style="max-width: 300px;" />
+            }
+        </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.ModeloProducto)
-        </dd>
+        <!-- Categoría -->
+        <div class="col-md-6 mb-3">
+            <strong>Categoría:</strong>
+            <p>@Html.DisplayFor(model => model.DescCategoria)</p>
+        </div>
+    </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.LineaProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LineaProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.GarantiaProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.GarantiaProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Precio)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Precio)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DescripcionTecnica)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DescripcionTecnica)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DescCategoria)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DescCategoria)
-        </dd>
-
-    </dl>
+    <div class="text-center mt-4">
+        @Html.ActionLink("Editar", "Edit", new { id = Model.IdProducto }, new { @class = "btn btn-primary me-2" })
+        @Html.ActionLink("Volver a la Lista", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>

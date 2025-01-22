@@ -43,12 +43,6 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
             return View(listausuarios);
         }
 
-        // GET: Usuarios/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
         // GET: Usuarios/Create
         public ActionResult Create()
         {

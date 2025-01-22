@@ -1,104 +1,86 @@
 ﻿@model ABB.Catalogo.Entidades.Core.Producto
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Eliminar Producto";
 }
 
-<h2>Delete</h2>
+<div class="container mt-5">
+    <h2 class="text-center text-danger mb-4">Eliminar Producto</h2>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Producto</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.IdProducto)
-        </dt>
+    <div class="alert alert-warning text-center">
+        <h5>¿Estás seguro de que deseas eliminar este producto?</h5>
+        <p>Esta acción no se puede deshacer.</p>
+    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.IdProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IdCategoria)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IdCategoria)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NomProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.NomProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.MarcaProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.MarcaProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ModeloProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ModeloProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.LineaProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LineaProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.GarantiaProducto)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.GarantiaProducto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Precio)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Precio)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DescripcionTecnica)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DescripcionTecnica)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DescCategoria)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DescCategoria)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-primary">Información del Producto</h4>
+            <hr />
         </div>
-    }
+
+        <!-- Primera Columna -->
+        <div class="col-md-6 mb-3">
+            <strong>Nombre del Producto:</strong>
+            <p>@Html.DisplayFor(model => model.NomProducto)</p>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <strong>Marca:</strong>
+            <p>@Html.DisplayFor(model => model.MarcaProducto)</p>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <strong>Modelo:</strong>
+            <p>@Html.DisplayFor(model => model.ModeloProducto)</p>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <strong>Línea:</strong>
+            <p>@Html.DisplayFor(model => model.LineaProducto)</p>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <strong>Garantía:</strong>
+            <p>@Html.DisplayFor(model => model.GarantiaProducto)</p>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <strong>Precio:</strong>
+            <p>@Html.DisplayFor(model => model.Precio)</p>
+        </div>
+
+        <!-- Descripción Técnica -->
+        <div class="col-md-12 mb-3">
+            <strong>Descripción Técnica:</strong>
+            <p>@Html.DisplayFor(model => model.DescripcionTecnica)</p>
+        </div>
+
+        <!-- Categoría -->
+        <div class="col-md-6 mb-3">
+            <strong>Categoría:</strong>
+            <p>@Html.DisplayFor(model => model.DescCategoria)</p>
+        </div>
+
+        <!-- Imagen (opcional) -->
+        <div class="col-md-12 mb-3 text-center">
+            @if (Model.Imagen != null)
+            {
+                <strong>Imagen del Producto:</strong>
+                <br />
+                <img src="@String.Format("data:image/jpeg;base64,{0}", Convert.ToBase64String(Model.Imagen))"
+                     alt="Imagen del Producto" class="img-fluid mt-3" style="max-width: 300px;" />
+            }
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger me-2">
+                <i class="fa fa-trash"></i> Eliminar
+            </button>
+        }
+        @Html.ActionLink("Volver a la Lista", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
 </div>
