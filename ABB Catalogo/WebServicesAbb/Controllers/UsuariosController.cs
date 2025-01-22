@@ -1,14 +1,13 @@
 ﻿using System;
-using ABB.Catalogo.Entidades.Core;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
+using ABB.Catalogo.Entidades.Core;
 using ABB.Catalogo.LogicaNegocio.Core;
 
 namespace WebServicesAbb.Controllers
 {
+    [Authorize]
     public class UsuariosController : ApiController
     {
         private readonly UsuariosLN _usuariosLN;
@@ -19,70 +18,108 @@ namespace WebServicesAbb.Controllers
         }
 
         // GET: api/Usuarios
-        public IEnumerable<Usuario> Get()
+        [HttpGet]
+        public IHttpActionResult Get()
         {
-            return _usuariosLN.ListarUsuarios();
+            try
+            {
+                var usuarios = _usuariosLN.ListarUsuarios();
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // GET: api/Usuarios/GetById/5
         [HttpGet]
         [Route("api/Usuarios/GetById/{id}")]
-        public Usuario GetById(int id)
+        public IHttpActionResult GetById(int id)
         {
             try
             {
-                return _usuariosLN.BuscaUsuarioId(id);
+                var usuario = _usuariosLN.BuscaUsuarioId(id);
+                if (usuario == null)
+                {
+                    return NotFound();
+                }
+                return Ok(usuario);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return InternalServerError(ex);
             }
         }
 
         // GET: api/Usuarios/ValidateUser
         [HttpGet]
         [Route("api/Usuarios/ValidateUser")]
-        public int ValidateUser([FromUri] string usuario, [FromUri] string password)
-        {
-            return _usuariosLN.GetUsuarioId(usuario, password);
-        }
-
-        // POST: api/Usuarios
-        public Usuario Post([FromBody] Usuario usuario)
+        public IHttpActionResult ValidateUser([FromUri] string usuario, [FromUri] string password)
         {
             try
             {
-                return _usuariosLN.InsertarUsuario(usuario);
+                var usuarioId = _usuariosLN.GetUsuarioId(usuario, password);
+                return Ok(usuarioId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                return InternalServerError(ex);
+            }
+        }
+
+        // POST: api/Usuarios
+        [HttpPost]
+        public IHttpActionResult Post([FromBody] Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                return BadRequest("El objeto usuario no puede ser nulo.");
+            }
+
+            try
+            {
+                var usuarioCreado = _usuariosLN.InsertarUsuario(usuario);
+                return Created($"api/Usuarios/{usuarioCreado.IdUsuario}", usuarioCreado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
         // PUT: api/Usuarios/5
-        public Usuario Put(int id, [FromBody] Usuario usuario)
+        [HttpPut]
+        public IHttpActionResult Put(int id, [FromBody] Usuario usuario)
         {
+            if (usuario == null)
+            {
+                return BadRequest("El objeto usuario no puede ser nulo.");
+            }
+
             try
             {
-                return _usuariosLN.ModificarUsuario(id, usuario);
+                var usuarioActualizado = _usuariosLN.ModificarUsuario(id, usuario);
+                return Ok(usuarioActualizado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                return BadRequest(ex.Message);
             }
         }
 
         // DELETE: api/Usuarios/5
-        public void Delete(int id)
+        [HttpDelete]
+        public IHttpActionResult Delete(int id)
         {
             try
             {
                 _usuariosLN.EliminarUsuario(id);
+                return StatusCode(HttpStatusCode.NoContent); // 204 No Content
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return NotFound();
             }
         }
     }
