@@ -107,6 +107,36 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "get all products",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2NmUxMTUzNi0wNjY1LTRhOGUtOTEwOS1lYWUxNGRiNzE2N2QiLCJuYW1laWQiOiJqYXlxdWlwYSIsIm5vbWJyZSI6InNhbXBsZSBzdHJpbmcgNCIsInJvbCI6InNhbXBsZSBzdHJpbmcgNSIsImV4cCI6MTczNzU3Njc2MSwiaXNzIjoiR3J1cG9NdXlhLmNvbSIsImF1ZCI6IkF2YW56YVNvbHVjaW9uZXMuY29tIn0.w4Y2ahFLXKoZlh86pauqHPTgqvfDB4cMKTtRorI7D0k",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:44380/api/productos",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44380",
+					"path": [
+						"api",
+						"productos"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
