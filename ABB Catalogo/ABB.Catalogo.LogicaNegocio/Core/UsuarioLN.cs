@@ -118,5 +118,19 @@ namespace ABB.Catalogo.LogicaNegocio.Core
                    !string.IsNullOrEmpty(usuario.Nombres) &&
                    usuario.IdRol > 0;
         }
+
+        public Usuario BuscarUsuario(Usuario Usuario)
+        {
+            try
+            {
+                return new UsuariosDA().BuscarUsuario(Usuario);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
+                throw;
+            }
+        }
+
     }
 }

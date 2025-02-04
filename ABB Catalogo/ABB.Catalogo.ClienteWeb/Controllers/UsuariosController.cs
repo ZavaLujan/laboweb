@@ -1,4 +1,5 @@
 ﻿using ABB.Catalogo.AccesoDatos.Core;
+using ABB.Catalogo.Entidades.Base;
 using ABB.Catalogo.Entidades.Core;
 using ABB.Catalogo.LogicaNegocio.Core;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ using HttpPostAttribute = System.Web.Mvc.HttpPostAttribute;
 
 namespace ABB.Catalogo.ClienteWeb.Controllers
 {
-    public class UsuariosController : Controller
+    public class UsuariosController : BaseLN
     {
         string RutaApi = "https://localhost:44380/api/";
         string jsonMediaType = "application/json";

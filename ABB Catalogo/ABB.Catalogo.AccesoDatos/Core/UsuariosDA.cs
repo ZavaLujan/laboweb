@@ -165,10 +165,39 @@ namespace ABB.Catalogo.AccesoDatos.Core
             if (!Convert.IsDBNull(reader["IdRol"]))
                 usuario.IdRol = Convert.ToInt32(reader["IdRol"]);
 
-            if (!Convert.IsDBNull(reader["DesRol"]))
+            // Si existe la columna DesRol, añádela
+            if (reader.GetSchemaTable().Columns.Contains("DesRol") &&
+                !Convert.IsDBNull(reader["DesRol"]))
+            {
                 usuario.DesRol = Convert.ToString(reader["DesRol"]);
+            }
 
             return usuario;
+        }
+
+        public Usuario BuscarUsuario(Usuario usuario)
+        {
+            Usuario SegSSOMUsuario = null;
+            using (SqlConnection conexion = new SqlConnection(ConfigurationManager.ConnectionStrings[ConfigurationManager.AppSettings["cnnSql"]].ConnectionString))
+            {
+
+                using (SqlCommand comando = new SqlCommand("paUsuario_BuscaCodUserClave", conexion))
+                {
+                    comando.CommandType = System.Data.CommandType.StoredProcedure;
+                    comando.Parameters.AddWithValue("@Clave", usuario.Clave);
+                    comando.Parameters.AddWithValue("@CodUsuario", usuario.CodUsuario);
+                    conexion.Open();
+                    SqlDataReader reader = comando.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        SegSSOMUsuario = LlenarEntidad(reader);
+
+                    }
+
+                    conexion.Close();
+                }
+            }
+            return SegSSOMUsuario;
         }
     }
 }
