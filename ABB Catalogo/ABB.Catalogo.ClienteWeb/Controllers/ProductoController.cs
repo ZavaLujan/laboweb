@@ -13,7 +13,7 @@ namespace ABB.Catalogo.ClienteWeb.Controllers
 {
     public class ProductoController : Controller
     {
-        string RutaApi = "https://localhost:44380/api/";
+        string RutaApi = "http://localhost/webapiabb/api/";
         string jsonMediaType = "application/json";
 
         // GET: Producto
