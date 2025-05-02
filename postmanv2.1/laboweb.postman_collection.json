@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "71ed1fb5-c7bd-434c-9b24-2b3e5f0212a6",
+		"name": "laboweb",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31371030"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Codigo\": \"1\",\r\n  \"UserName\": \"jayquipa\",\r\n  \"Clave\": \"xyz1234\",\r\n  \"Nombre\": \"sample string 4\",\r\n  \"Rol\": \"sample string 5\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/Api/Usuarios",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"Api",
+						"Usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate User - password username",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2N2Q2M2Y5Ni04MGJkLTRjZjItYWFmMC1mNGE0NzFiNDgyNjMiLCJuYW1laWQiOiJqYXlxdWlwYSIsIm5vbWJyZSI6InNhbXBsZSBzdHJpbmcgNCIsInJvbCI6InNhbXBsZSBzdHJpbmcgNSIsImV4cCI6MTczNzU3NjQ3OSwiaXNzIjoiR3J1cG9NdXlhLmNvbSIsImF1ZCI6IkF2YW56YVNvbHVjaW9uZXMuY29tIn0.SvbD5Ie22sT-AFJOVxS45WN_YfHyasBNkdTTNq7sIk8",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:44380/api/usuarios/validateuser?usuario=jayquipa&password=123456",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44380",
+					"path": [
+						"api",
+						"usuarios",
+						"validateuser"
+					],
+					"query": [
+						{
+							"key": "usuario",
+							"value": "jayquipa"
+						},
+						{
+							"key": "password",
+							"value": "123456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all users",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxYjRkNGZiNy01MTI0LTQwMmUtODVhMy1hNjFmMDg2MGIwM2QiLCJuYW1laWQiOiJqYXlxdWlwYSIsIm5vbWJyZSI6InNhbXBsZSBzdHJpbmcgNCIsInJvbCI6InNhbXBsZSBzdHJpbmcgNSIsImV4cCI6MTczNzY3MDA1NSwiaXNzIjoiR3J1cG9NdXlhLmNvbSIsImF1ZCI6IkF2YW56YVNvbHVjaW9uZXMuY29tIn0.PSa7qYekBzR1E93yVX_h-N2i8WwcZD5U07gfu1FQjbU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:44380/api/usuarios",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44380",
+					"path": [
+						"api",
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all products",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://react-state-2f39c-default-rtdb.firebaseio.com/person.json",
+					"protocol": "https",
+					"host": [
+						"react-state-2f39c-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"person.json"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
